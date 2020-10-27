@@ -12,7 +12,7 @@ namespace SmiteAPIWebsite
         static void Main(string[] args)
         {
             CreateSession(); 
-            System.Console.WriteLine();
+            GetGodsInfo();
             Console.ReadLine();
 
         }
@@ -21,7 +21,7 @@ namespace SmiteAPIWebsite
         {
             var signature = GetMD5Hash(Dev.id + "createsession" + Dev.authKey + Dev.timeStamp);
 
-            WebRequest request = WebRequest.Create(Dev.urlPrefix + "createsessionJson/" + Dev.id + "/" + signature + "/" + Dev.timeStamp);
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "createsessionjson/" + Dev.id + "/" + signature + "/" + Dev.timeStamp);
 
             WebResponse response = request.GetResponse();
 
@@ -38,7 +38,35 @@ namespace SmiteAPIWebsite
                     web.Encoding = System.Text.Encoding.UTF8;
                     var jsonString = responseFromServer;
                     var g = JsonSerializer.Deserialize<SessionInfo>(jsonString);
+                    Dev.session = g.session_id;
                 }
+        }
+
+        private static void GetGodsInfo()
+        {
+            var signature = GetMD5Hash(Dev.id + "getgods" + Dev.authKey + Dev.timeStamp);
+
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getgodsjson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + Dev.languageCode);
+
+            WebResponse response = request.GetResponse();
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            response.Close();
+
+            using (var web = new WebClient())
+                {
+                    web.Encoding = System.Text.Encoding.UTF8;
+                    var jsonString = responseFromServer;
+                    var godsInfo = JsonSerializer.Deserialize<Gods>(jsonString);
+                    System.Console.WriteLine(godsInfo.Ability1);
+                }
+
+
         }
 
         private static string GetMD5Hash(string input) 
