@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Net;
+using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SmiteAPIWebsite
 {
@@ -8,25 +11,38 @@ namespace SmiteAPIWebsite
 
         static void Main(string[] args)
         {
-            var responseFormat = "JSON";
+            CreateSession(); 
+            System.Console.WriteLine();
+            Console.ReadLine();
 
-            string devId = "3646";
-
-            string authKey = "D478B2446D7B462D889F936197667A06";
-
-            string utcDate = DateTime.UtcNow.ToString("yyyy" + "MM" + "dd" + "HH" + "mm" + "ss");
-            
-            var signature = GetMD5Hash(devId + "createsession" + authKey + utcDate);
-
-            string urlPrefix = "http://api.smitegame.com/smiteapi.svc/";
-
-            WebRequest request = WebRequest.Create(urlPrefix + "createsession" + responseFormat + "/" + devId + "/" + signature + "/" + utcDate);
-
-
-            System.Console.WriteLine(request);
         }
 
-        private static string GetMD5Hash(string input) {
+        private static void CreateSession()
+        {
+            var signature = GetMD5Hash(Dev.id + "createsession" + Dev.authKey + Dev.timeStamp);
+
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "createsessionJson/" + Dev.id + "/" + signature + "/" + Dev.timeStamp);
+
+            WebResponse response = request.GetResponse();
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            response.Close();
+
+            using (var web = new WebClient())
+                {
+                    web.Encoding = System.Text.Encoding.UTF8;
+                    var jsonString = responseFromServer;
+                    var g = JsonSerializer.Deserialize<SessionInfo>(jsonString);
+                }
+        }
+
+        private static string GetMD5Hash(string input) 
+        {
             var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
             var bytes = System.Text.Encoding.UTF8.GetBytes(input);
             bytes = md5.ComputeHash(bytes);
@@ -35,7 +51,6 @@ namespace SmiteAPIWebsite
                 sb.Append(b.ToString("x2").ToLower());
             }
             return sb.ToString();
-}
-
+        }
     }
 }
