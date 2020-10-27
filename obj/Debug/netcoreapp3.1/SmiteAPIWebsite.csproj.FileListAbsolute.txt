@@ -1,0 +1,13 @@
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\obj\Debug\netcoreapp3.1\SmiteAPIWebsite.csprojAssemblyReference.cache
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\obj\Debug\netcoreapp3.1\SmiteAPIWebsite.AssemblyInfoInputs.cache
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\obj\Debug\netcoreapp3.1\SmiteAPIWebsite.AssemblyInfo.cs
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\obj\Debug\netcoreapp3.1\SmiteAPIWebsite.csproj.CoreCompileInputs.cache
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\bin\Debug\netcoreapp3.1\SmiteAPIWebsite.exe
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\bin\Debug\netcoreapp3.1\SmiteAPIWebsite.deps.json
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\bin\Debug\netcoreapp3.1\SmiteAPIWebsite.runtimeconfig.json
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\bin\Debug\netcoreapp3.1\SmiteAPIWebsite.runtimeconfig.dev.json
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\bin\Debug\netcoreapp3.1\SmiteAPIWebsite.dll
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\bin\Debug\netcoreapp3.1\SmiteAPIWebsite.pdb
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\obj\Debug\netcoreapp3.1\SmiteAPIWebsite.dll
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\obj\Debug\netcoreapp3.1\SmiteAPIWebsite.pdb
+C:\Users\nuryn\Desktop\PycharmProjects\SmiteAPIWebsite\obj\Debug\netcoreapp3.1\SmiteAPIWebsite.genruntimeconfig.cache

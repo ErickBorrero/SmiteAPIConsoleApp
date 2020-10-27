@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "SmiteAPIWebsite/1.0.0": {
+        "runtime": {
+          "SmiteAPIWebsite.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SmiteAPIWebsite/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
