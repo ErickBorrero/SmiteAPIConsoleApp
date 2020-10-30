@@ -3,6 +3,8 @@ using System.Net;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Collections.Generic;
+
 
 namespace SmiteAPIWebsite
 {
@@ -11,10 +13,10 @@ namespace SmiteAPIWebsite
 
         static void Main(string[] args)
         {
-            CreateSession(); 
-            GetGodsInfo();
-            Console.ReadLine();
-
+            CreateSession();
+            // GetGodsInfo();
+            //GetPlayerInfo("itstheflea");
+            GetPlayerId("itstheflea");
         }
 
         private static void CreateSession()
@@ -57,16 +59,82 @@ namespace SmiteAPIWebsite
 
             reader.Close();
             response.Close();
+            
+            System.Console.WriteLine(responseFromServer);
 
             using (var web = new WebClient())
                 {
                     web.Encoding = System.Text.Encoding.UTF8;
                     var jsonString = responseFromServer;
-                    var godsInfo = JsonSerializer.Deserialize<Gods>(jsonString);
-                    System.Console.WriteLine(godsInfo.Ability1);
+                    var gods = JsonSerializer.Deserialize<List<Gods>>(jsonString);
+
+                    foreach (Gods g in gods)
+                    {
+                        System.Console.WriteLine(g.Name);
+                    }
                 }
 
 
+        }
+
+        private static void GetPlayerInfo(string playerName)
+        {
+            var signature = GetMD5Hash(Dev.id + "getplayer" + Dev.authKey + Dev.timeStamp);
+
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getplayerjson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerName);
+
+            WebResponse response = request.GetResponse();
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            response.Close();
+
+            System.Console.WriteLine(responseFromServer);
+
+            using (var web = new WebClient())
+            {
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = responseFromServer;
+                var playerInfo = JsonSerializer.Deserialize<List<PlayerInfoBase>>(jsonString);
+                System.Console.WriteLine(playerInfo);
+            }
+
+        }
+
+        private static string GetPlayerId(string name)
+        {
+            var signature = GetMD5Hash(Dev.id + "getplayeridbyname" + Dev.authKey + Dev.timeStamp);
+
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getplayeridbynamejson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + name);
+
+            WebResponse response = request.GetResponse();
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            response.Close();
+
+            System.Console.WriteLine(responseFromServer);
+
+            using (var web = new WebClient())
+            {
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = responseFromServer;
+                var playerInfo = JsonSerializer.Deserialize<List<PlayerIdInfo>>(jsonString);
+
+                return playerInfo[0].player_id.ToString();
+                // foreach (PlayerIdInfo player in playerInfo)
+                // {
+                //     System.Console.WriteLine(player.player_id);
+                // }
+            }
         }
 
         private static string GetMD5Hash(string input) 
