@@ -14,9 +14,8 @@ namespace SmiteAPIWebsite
         static void Main(string[] args)
         {
             CreateSession();
-            // GetGodsInfo();
-            //GetPlayerInfo("itstheflea");
-            GetPlayerId("itstheflea");
+            GetLeagueLeaderboard("504", "27");
+
         }
 
         private static void CreateSession()
@@ -76,40 +75,54 @@ namespace SmiteAPIWebsite
 
 
         }
-
-        private static void GetPlayerInfo(string playerName)
+     
+        private static string GetPlayerId(string playerName)
         {
-            var signature = GetMD5Hash(Dev.id + "getplayer" + Dev.authKey + Dev.timeStamp);
-
-            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getplayerjson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerName);
-
-            WebResponse response = request.GetResponse();
-
-            Stream dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-
-            string responseFromServer = reader.ReadToEnd();
-
-            reader.Close();
-            response.Close();
-
-            System.Console.WriteLine(responseFromServer);
+            string jsonInfo = ApiCall("getplayeridbyname", playerName);
 
             using (var web = new WebClient())
             {
                 web.Encoding = System.Text.Encoding.UTF8;
-                var jsonString = responseFromServer;
+                var jsonString = jsonInfo;
+                var playerInfo = JsonSerializer.Deserialize<List<PlayerIdInfo>>(jsonString);
+
+                return playerInfo[0].player_id.ToString();
+            }
+        }
+
+        private static void GetPlayerInfo(string playerName)
+        {
+            string jsonInfo = ApiCall("getplayer", playerName);
+
+            using (var web = new WebClient())
+            {
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = jsonInfo;
                 var playerInfo = JsonSerializer.Deserialize<List<PlayerInfoBase>>(jsonString);
                 System.Console.WriteLine(playerInfo);
             }
 
         }
 
-        private static string GetPlayerId(string name)
+        private static void GetMatchHistory(string playerName)
         {
-            var signature = GetMD5Hash(Dev.id + "getplayeridbyname" + Dev.authKey + Dev.timeStamp);
+            string jsonInfo = ApiCall("getmatchhistory", playerName);
 
-            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getplayeridbynamejson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + name);
+            using (var web = new WebClient())
+            {
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = jsonInfo;
+                var playerMatchHistory = JsonSerializer.Deserialize<List<MatchHistory>>(jsonString);
+
+            }
+        }
+        
+
+        private static void GetLeagueLeaderboard(string queue, string tier)
+        {
+            var signature = GetMD5Hash(Dev.id + "getleagueleaderboard" + Dev.authKey + Dev.timeStamp);
+
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getleagueleaderboardjson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + queue + "/" + tier + "/" + "6");
 
             WebResponse response = request.GetResponse();
 
@@ -118,25 +131,11 @@ namespace SmiteAPIWebsite
 
             string responseFromServer = reader.ReadToEnd();
 
-            reader.Close();
-            response.Close();
-
             System.Console.WriteLine(responseFromServer);
 
-            using (var web = new WebClient())
-            {
-                web.Encoding = System.Text.Encoding.UTF8;
-                var jsonString = responseFromServer;
-                var playerInfo = JsonSerializer.Deserialize<List<PlayerIdInfo>>(jsonString);
-
-                return playerInfo[0].player_id.ToString();
-                // foreach (PlayerIdInfo player in playerInfo)
-                // {
-                //     System.Console.WriteLine(player.player_id);
-                // }
-            }
+            reader.Close();
+            response.Close();
         }
-
         private static string GetMD5Hash(string input) 
         {
             var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
@@ -148,5 +147,26 @@ namespace SmiteAPIWebsite
             }
             return sb.ToString();
         }
+    
+        private static string ApiCall(string requestType, string playerName = "")
+            {
+                var signature = GetMD5Hash(Dev.id + requestType + Dev.authKey + Dev.timeStamp);
+
+                WebRequest request = WebRequest.Create(Dev.urlPrefix + requestType + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerName);
+
+                WebResponse response = request.GetResponse();
+
+                Stream dataStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+
+                string responseFromServer = reader.ReadToEnd();
+
+                reader.Close();
+                response.Close();
+
+                return responseFromServer;
+            }
     }
+
+        
 }
