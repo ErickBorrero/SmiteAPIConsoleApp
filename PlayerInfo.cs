@@ -3,18 +3,7 @@ using System.Collections.Generic;
 
 
 namespace SmiteAPIWebsite
-{
-    public class PlayerInfoBase
-    {
-        public List<PlayerInfo> Property1 { get; set; }
-    }
-
-    public class PlayerIdBase
-    {
-        public List<PlayerIdInfo> Property1 { get; set; }
-    }
-
-    public class PlayerIdInfo
+{    public class PlayerIdInfo
     {
         public int player_id { get; set; }
         public string portal { get; set; }

@@ -14,8 +14,7 @@ namespace SmiteAPIWebsite
         static void Main(string[] args)
         {
             CreateSession();
-            GetLeagueLeaderboard("504", "27");
-
+            GetGodRanks("xxmonstinator");
         }
 
         private static void CreateSession()
@@ -78,7 +77,7 @@ namespace SmiteAPIWebsite
      
         private static string GetPlayerId(string playerName)
         {
-            string jsonInfo = ApiCall("getplayeridbyname", playerName);
+            string jsonInfo = ApiCallWithId("getplayeridbyname", playerName);
 
             using (var web = new WebClient())
             {
@@ -90,15 +89,15 @@ namespace SmiteAPIWebsite
             }
         }
 
-        private static void GetPlayerInfo(string playerName)
+        private static void GetPlayerInfo(string playerName, string portalId)
         {
-            string jsonInfo = ApiCall("getplayer", playerName);
-
+            string jsonInfo = ApiCallWithName("getplayer", playerName, portalId);
+            System.Console.WriteLine(jsonInfo);
             using (var web = new WebClient())
             {
                 web.Encoding = System.Text.Encoding.UTF8;
                 var jsonString = jsonInfo;
-                var playerInfo = JsonSerializer.Deserialize<List<PlayerInfoBase>>(jsonString);
+                var playerInfo = JsonSerializer.Deserialize<List<PlayerInfo>>(jsonString);
                 System.Console.WriteLine(playerInfo);
             }
 
@@ -106,7 +105,8 @@ namespace SmiteAPIWebsite
 
         private static void GetMatchHistory(string playerName)
         {
-            string jsonInfo = ApiCall("getmatchhistory", playerName);
+            string playerId = GetPlayerId(playerName);            
+            string jsonInfo = ApiCallWithId("getmatchhistory", playerId);
 
             using (var web = new WebClient())
             {
@@ -117,7 +117,13 @@ namespace SmiteAPIWebsite
             }
         }
         
-
+        private static void GetGodRanks(string playerName)
+        {
+            string playerId = GetPlayerId(playerName);
+            string jsonInfo = ApiCallWithId("getgodranks", playerId);
+            System.Console.WriteLine(jsonInfo);
+        }
+        
         private static void GetLeagueLeaderboard(string queue, string tier)
         {
             var signature = GetMD5Hash(Dev.id + "getleagueleaderboard" + Dev.authKey + Dev.timeStamp);
@@ -136,6 +142,7 @@ namespace SmiteAPIWebsite
             reader.Close();
             response.Close();
         }
+        
         private static string GetMD5Hash(string input) 
         {
             var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
@@ -148,11 +155,11 @@ namespace SmiteAPIWebsite
             return sb.ToString();
         }
     
-        private static string ApiCall(string requestType, string playerName = "")
+        private static string ApiCallWithId(string requestType, string playerId)
             {
                 var signature = GetMD5Hash(Dev.id + requestType + Dev.authKey + Dev.timeStamp);
 
-                WebRequest request = WebRequest.Create(Dev.urlPrefix + requestType + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerName);
+                WebRequest request = WebRequest.Create(Dev.urlPrefix + requestType + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerId);
 
                 WebResponse response = request.GetResponse();
 
@@ -166,7 +173,24 @@ namespace SmiteAPIWebsite
 
                 return responseFromServer;
             }
-    }
+    
+        private static string ApiCallWithName(string requestType, string playerName, string portalId)
+        {
+            var signature = GetMD5Hash(Dev.id + requestType + Dev.authKey + Dev.timeStamp);
 
-        
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + requestType + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerName + "/" + portalId);
+
+            WebResponse response = request.GetResponse();
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            response.Close();
+
+            return responseFromServer;
+        }
+    }      
 }
