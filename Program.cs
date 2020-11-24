@@ -15,7 +15,7 @@ namespace SmiteAPIWebsite
         {
             CreateSession();
             // GetGodRanks("its the flea");
-            GetPlayerInfo("itstheflea");
+            GetLeagueLeaderboard("504", "27");
         }
 
         private static void CreateSession()
@@ -159,9 +159,20 @@ namespace SmiteAPIWebsite
 
         }
 
-        private static void GetMatchHistory(string playerName, string portalId)
+        private static void GetMatchHistory(string playerName, string portalId = "1")
         {
-            string playerId = GetPlayerId(playerName);            
+            string playerId;
+
+            if (portalId == "1")
+            {
+                playerId = GetPlayerId(playerName);
+            }
+            else
+            {
+                playerId = GetConsolePlayerId(playerName, portalId);
+
+            }
+
             string jsonInfo = ApiCallWithId("getmatchhistory", playerId);
 
             using (var web = new WebClient())
@@ -173,9 +184,19 @@ namespace SmiteAPIWebsite
             }
         }
         
-        private static void GetGodRanks(string playerName, string portalId)
+        private static void GetGodRanks(string playerName, string portalId = "1")
         {
-            string playerId = GetPlayerId(playerName);
+            string playerId;
+
+            if (portalId == "1")
+            {
+                playerId = GetPlayerId(playerName);
+            }
+            else
+            {
+                playerId = GetConsolePlayerId(playerName, portalId);
+            }
+
             string jsonInfo = ApiCallWithId("getgodranks", playerId);
 
             using (var web = new WebClient())
@@ -183,13 +204,6 @@ namespace SmiteAPIWebsite
                 web.Encoding = System.Text.Encoding.UTF8;
                 var jsonString = jsonInfo;
                 var playerInfo = JsonSerializer.Deserialize<List<GodRanks>>(jsonString);
-
-                foreach (GodRanks god in playerInfo)
-                {
-                    System.Console.WriteLine(god.god);
-                    System.Console.WriteLine(god.Worshippers);
-                    System.Console.WriteLine("");
-                }
             }
         }
         
@@ -197,19 +211,24 @@ namespace SmiteAPIWebsite
         {
             var signature = GetMD5Hash(Dev.id + "getleagueleaderboard" + Dev.authKey + Dev.timeStamp);
 
-            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getleagueleaderboardjson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + queue + "/" + tier + "/" + "6");
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getleagueleaderboardjson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + queue + "/" + tier + "/" + Dev.seasonRound);
 
             WebResponse response = request.GetResponse();
 
             Stream dataStream = response.GetResponseStream();
             StreamReader reader = new StreamReader(dataStream);
 
-            string responseFromServer = reader.ReadToEnd();
-
-            System.Console.WriteLine(responseFromServer);
+            string jsonInfo = reader.ReadToEnd();
 
             reader.Close();
             response.Close();
+
+            using (var web = new WebClient())
+            {
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = jsonInfo;
+                var playerInfo = JsonSerializer.Deserialize<List<TopRankedPlayers>>(jsonString);
+            }
         }
         
         private static string GetMD5Hash(string input) 

@@ -1,10 +1,10 @@
 using System;
 
 
-namespace SmiteApiWebsite
+namespace SmiteAPIWebsite
 {
 
-    public class TopConquestPlayers
+    public class TopRankedPlayers
     {
         public int Leaves { get; set; }
         public int Losses { get; set; }

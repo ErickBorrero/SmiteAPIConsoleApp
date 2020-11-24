@@ -12,5 +12,7 @@ namespace SmiteAPIWebsite
         public static string session = "";
         public static string languageCode = "1";
 
+        public static string seasonRound = "6";
+
     }
 }
