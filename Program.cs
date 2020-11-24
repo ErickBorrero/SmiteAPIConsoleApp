@@ -15,7 +15,9 @@ namespace SmiteAPIWebsite
         {
             CreateSession();
             // GetGodRanks("its the flea");
-            GetLeagueLeaderboard("504", "27");
+            // GetLeagueLeaderboard("504", "27");
+
+            PlayerQueueStats("xxmonstinatorxx", "504");
         }
 
         private static void CreateSession()
@@ -76,75 +78,23 @@ namespace SmiteAPIWebsite
 
         }
      
-        private static string GetPlayerId(string playerName)
+        private static string SearchPlayer(string playerName)
         {
-            var signature = GetMD5Hash(Dev.id + "getplayeridbyname" + Dev.authKey + Dev.timeStamp);
-
-            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getplayeridbyname" + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerName);
-
-            WebResponse response = request.GetResponse();
-
-            Stream dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-
-            string responseFromServer = reader.ReadToEnd();
-
-            reader.Close();
-            response.Close();
-
-            System.Console.WriteLine(responseFromServer);
+            string jsonInfo = ApiCallWithName("searchplayers", playerName);
 
             using (var web = new WebClient())
-            {
-                web.Encoding = System.Text.Encoding.UTF8;
-                var jsonString = responseFromServer;
-                var playerInfo = JsonSerializer.Deserialize<List<PlayerIdInfo>>(jsonString);
-
-                return playerInfo[0].player_id.ToString();
-            }
-        }
-
-        private static string GetConsolePlayerId(string gamertag, string portalId)
-        {
-            var signature = GetMD5Hash(Dev.id + "getplayeridsbygamertag" + Dev.authKey + Dev.timeStamp);
-
-                WebRequest request = WebRequest.Create(Dev.urlPrefix + "getplayeridsbygamertag" + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + portalId + "/" + gamertag);
-
-                WebResponse response = request.GetResponse();
-
-                Stream dataStream = response.GetResponseStream();
-                StreamReader reader = new StreamReader(dataStream);
-
-                string responseFromServer = reader.ReadToEnd();
-
-                reader.Close();
-                response.Close();
-                
-                Console.WriteLine(responseFromServer);
-
-                using (var web = new WebClient())
                 {
                     web.Encoding = System.Text.Encoding.UTF8;
-                    var jsonString = responseFromServer;
-                    var playerInfo = JsonSerializer.Deserialize<List<PlayerIdInfo>>(jsonString);
+                    var jsonString = jsonInfo;
+                    var playerInfo = JsonSerializer.Deserialize<List<BasePlayerInfo>>(jsonString);
 
                     return playerInfo[0].player_id.ToString();
                 }
         }
 
-        private static void GetPlayerInfo(string playerName, string portalId = "1")
+        private static void GetPlayerInfo(string playerName)
         {
-            string playerId;
-
-            if (portalId == "1")
-            {
-                playerId = GetPlayerId(playerName);
-            }
-            else
-            {
-                playerId = GetConsolePlayerId(playerName, portalId);
-
-            }
+            string playerId = SearchPlayer(playerName);
 
             string jsonInfo = ApiCallWithId("getplayer", playerId);
 
@@ -159,19 +109,35 @@ namespace SmiteAPIWebsite
 
         }
 
-        private static void GetMatchHistory(string playerName, string portalId = "1")
+        private static void PlayerQueueStats(string playerName, string queue)
         {
-            string playerId;
+            string playerId = SearchPlayer(playerName);
 
-            if (portalId == "1")
-            {
-                playerId = GetPlayerId(playerName);
-            }
-            else
-            {
-                playerId = GetConsolePlayerId(playerName, portalId);
+            var signature = GetMD5Hash(Dev.id + "getqueuestats" + Dev.authKey + Dev.timeStamp);
 
+                WebRequest request = WebRequest.Create(Dev.urlPrefix + "getqueuestatsjson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerId + "/" + queue);
+
+                WebResponse response = request.GetResponse();
+
+                Stream dataStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+
+                string jsonInfo = reader.ReadToEnd();
+
+                reader.Close();
+                response.Close();
+            
+            using (var web = new WebClient())
+            {
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = jsonInfo;
+                var playerInfo = JsonSerializer.Deserialize<List<PlayerQueueStats>>(jsonString);
             }
+        }
+
+        private static void GetMatchHistory(string playerName)
+        {
+            string playerId = SearchPlayer(playerName);
 
             string jsonInfo = ApiCallWithId("getmatchhistory", playerId);
 
@@ -184,18 +150,22 @@ namespace SmiteAPIWebsite
             }
         }
         
-        private static void GetGodRanks(string playerName, string portalId = "1")
+        private static void GetMatchDetails(string matchId)
         {
-            string playerId;
+            string jsonInfo = ApiCallWithId("getmatchdetails", matchId);
 
-            if (portalId == "1")
+            using (var web = new WebClient())
             {
-                playerId = GetPlayerId(playerName);
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = jsonInfo;
+                var playerMatchHistory = JsonSerializer.Deserialize<List<MatchDetails>>(jsonString);
+
             }
-            else
-            {
-                playerId = GetConsolePlayerId(playerName, portalId);
-            }
+        }
+
+        private static void GetGodRanks(string playerName)
+        {
+            string playerId = SearchPlayer(playerName);
 
             string jsonInfo = ApiCallWithId("getgodranks", playerId);
 
@@ -263,11 +233,11 @@ namespace SmiteAPIWebsite
                 return responseFromServer;
             }
     
-        private static string ApiCallWithName(string requestType, string playerName, string portalId)
+        private static string ApiCallWithName(string requestType, string playerName)
         {
             var signature = GetMD5Hash(Dev.id + requestType + Dev.authKey + Dev.timeStamp);
 
-            WebRequest request = WebRequest.Create(Dev.urlPrefix + requestType + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerName + "/" + portalId);
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + requestType + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerName);
 
             WebResponse response = request.GetResponse();
 
@@ -280,6 +250,65 @@ namespace SmiteAPIWebsite
             response.Close();
 
             return responseFromServer;
+        }
+    
+    
+    
+    //Deprecated
+        private static string GetPlayerId(string playerName)
+            {
+                var signature = GetMD5Hash(Dev.id + "getplayeridbyname" + Dev.authKey + Dev.timeStamp);
+
+                WebRequest request = WebRequest.Create(Dev.urlPrefix + "getplayeridbyname" + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + playerName);
+
+                WebResponse response = request.GetResponse();
+
+                Stream dataStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+
+                string responseFromServer = reader.ReadToEnd();
+
+                reader.Close();
+                response.Close();
+
+                System.Console.WriteLine(responseFromServer);
+
+                using (var web = new WebClient())
+                {
+                    web.Encoding = System.Text.Encoding.UTF8;
+                    var jsonString = responseFromServer;
+                    var playerInfo = JsonSerializer.Deserialize<List<PlayerIdInfo>>(jsonString);
+
+                    return playerInfo[0].player_id.ToString();
+                }
+            }
+
+        private static string GetConsolePlayerId(string gamertag, string portalId)
+        {
+            var signature = GetMD5Hash(Dev.id + "getplayeridsbygamertag" + Dev.authKey + Dev.timeStamp);
+
+                WebRequest request = WebRequest.Create(Dev.urlPrefix + "getplayeridsbygamertag" + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + portalId + "/" + gamertag);
+
+                WebResponse response = request.GetResponse();
+
+                Stream dataStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+
+                string responseFromServer = reader.ReadToEnd();
+
+                reader.Close();
+                response.Close();
+                
+                Console.WriteLine(responseFromServer);
+
+                using (var web = new WebClient())
+                {
+                    web.Encoding = System.Text.Encoding.UTF8;
+                    var jsonString = responseFromServer;
+                    var playerInfo = JsonSerializer.Deserialize<List<PlayerIdInfo>>(jsonString);
+
+                    return playerInfo[0].player_id.ToString();
+                }
         }
     }      
 }

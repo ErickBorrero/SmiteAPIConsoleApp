@@ -1,7 +1,3 @@
-"getmatchdetails" method
-
-"getqueuestats" method
-
 "getplayerstatus" method
 
 "getplayerachievements" method
@@ -13,8 +9,6 @@
 "testsession" method
 
 "getdataused" method
-
-"searchplayers" method
 
 
 ****Clan Info(Optional)****
