@@ -13,11 +13,15 @@ namespace SmiteAPIWebsite
 
         static void Main(string[] args)
         {
-            CreateSession();
-            // GetGodRanks("its the flea");
-            // GetLeagueLeaderboard("504", "27");
+            bool activeSession = TestSession();
 
-            PlayerQueueStats("xxmonstinatorxx", "504");
+            if (!activeSession)
+            {
+                CreateSession();
+                activeSession = true;
+            }
+
+            GetPlayerStatus("netroid");
         }
 
         private static void CreateSession()
@@ -42,6 +46,57 @@ namespace SmiteAPIWebsite
                     var jsonString = responseFromServer;
                     var g = JsonSerializer.Deserialize<SessionInfo>(jsonString);
                     Dev.session = g.session_id;
+                }
+        }
+
+        private static bool TestSession()
+        {
+            try
+            {
+            var signature = GetMD5Hash(Dev.id + "testsession" + Dev.authKey + Dev.timeStamp);
+
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "testsession" + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp);
+
+            WebResponse response = request.GetResponse();
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            response.Close();
+            return true;
+            }
+            catch (System.Exception)
+            {
+                
+                return false;
+            }
+            
+        }
+
+        private static void GetDataUsed()
+        {
+            var signature = GetMD5Hash(Dev.id + "getdataused" + Dev.authKey + Dev.timeStamp);
+
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getdataused" + "json/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp);
+
+            WebResponse response = request.GetResponse();
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            response.Close();
+
+            using (var web = new WebClient())
+                {
+                    web.Encoding = System.Text.Encoding.UTF8;
+                    var jsonString = responseFromServer;
+                    var devData = JsonSerializer.Deserialize<List<DataUsed>>(jsonString);
                 }
         }
 
@@ -92,6 +147,21 @@ namespace SmiteAPIWebsite
                 }
         }
 
+        private static void GetPlayerStatus(string playerName)
+        {
+            string playerId = SearchPlayer(playerName);
+
+            string jsonInfo = ApiCallWithId("getplayerstatus", playerId);
+
+            using (var web = new WebClient())
+            {
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = jsonInfo;
+                var playerInfo = JsonSerializer.Deserialize<List<PlayerStatus>>(jsonString);
+            }
+
+        }
+
         private static void GetPlayerInfo(string playerName)
         {
             string playerId = SearchPlayer(playerName);
@@ -109,7 +179,15 @@ namespace SmiteAPIWebsite
 
         }
 
-        private static void PlayerQueueStats(string playerName, string queue)
+        private static void GetPlayerAchievements(string playerName)
+        {
+            string playerId = SearchPlayer(playerName);
+
+            string jsonInfo = ApiCallWithId("getplayer", playerId);
+
+        }
+
+        private static void GetPlayerQueueStats(string playerName, string queue)
         {
             string playerId = SearchPlayer(playerName);
 

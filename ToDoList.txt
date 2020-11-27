@@ -1,14 +1,8 @@
-"getplayerstatus" method
-
 "getplayerachievements" method
 
 "getitems" method
 
 "getgodleaderboard" method
-
-"testsession" method
-
-"getdataused" method
 
 
 ****Clan Info(Optional)****
