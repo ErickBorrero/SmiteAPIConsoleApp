@@ -21,7 +21,7 @@ namespace SmiteAPIWebsite
                 activeSession = true;
             }
 
-            GetPlayerStatus("netroid");
+            GetItems();
         }
 
         private static void CreateSession()
@@ -132,7 +132,31 @@ namespace SmiteAPIWebsite
 
 
         }
-     
+
+        private static void GetItems()
+        {
+            var signature = GetMD5Hash(Dev.id + "getitems" + Dev.authKey + Dev.timeStamp);
+
+            WebRequest request = WebRequest.Create(Dev.urlPrefix + "getitemsjson/" + Dev.id + "/" + signature + "/" + Dev.session + "/" + Dev.timeStamp + "/" + Dev.languageCode);
+
+            WebResponse response = request.GetResponse();
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            response.Close();
+            
+            using (var web = new WebClient())
+            {
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = responseFromServer;
+                var itemsInfo = JsonSerializer.Deserialize<List<ItemsInfo>>(jsonString);
+            }
+        }
+
         private static string SearchPlayer(string playerName)
         {
             string jsonInfo = ApiCallWithName("searchplayers", playerName);
@@ -183,8 +207,14 @@ namespace SmiteAPIWebsite
         {
             string playerId = SearchPlayer(playerName);
 
-            string jsonInfo = ApiCallWithId("getplayer", playerId);
+            string jsonInfo = ApiCallWithId("getplayerachievements", playerId);
 
+            using (var web = new WebClient())
+            {
+                web.Encoding = System.Text.Encoding.UTF8;
+                var jsonString = jsonInfo;
+                var playerInfo = JsonSerializer.Deserialize<PlayerAchievements>(jsonString);
+            }
         }
 
         private static void GetPlayerQueueStats(string playerName, string queue)
