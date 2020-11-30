@@ -21,7 +21,7 @@ namespace SmiteAPIWebsite
                 activeSession = true;
             }
 
-            GetItems();
+            GetGodsInfo();
         }
 
         private static void CreateSession()
@@ -124,10 +124,6 @@ namespace SmiteAPIWebsite
                     var jsonString = responseFromServer;
                     var gods = JsonSerializer.Deserialize<List<Gods>>(jsonString);
 
-                    foreach (Gods g in gods)
-                    {
-                        System.Console.WriteLine(g.Name);
-                    }
                 }
 
 

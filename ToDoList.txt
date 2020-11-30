@@ -1,7 +1,6 @@
-"getgodleaderboard" method
-
-
 ****Clan Info(Optional)****
 "getteamplayers" method
 
 "getteamdetails" method
+
+"getgodleaderboard" method
